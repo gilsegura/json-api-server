@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "[datum](https://jsonapi.org/format/#crud)",
+  "type": "object",
+  "required": [
+    "data"
+  ],
+  "properties": {
+    "data": {
+      "$ref": "#/$defs/data"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "data": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/resource"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/resource"
+          },
+          "uniqueItems": true
+        },
+        {
+          "$ref": "#/$defs/nullable-type"
+        }
+      ]
+    },
+    "resource": {
+      "type": "object",
+      "required": [
+        "type",
+        "id"
+      ],
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "attributes": {
+          "$ref": "#/$defs/attributes"
+        },
+        "relationships": {
+          "$ref": "#/$defs/relationships"
+        }
+      },
+      "additionalProperties": false
+    },
+    "attributes": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-zA-Z0-9](?:[-\\w]*[a-zA-Z0-9])?$": {
+          "description": "Attributes may contain any valid JSON value, including complex data structures involving JSON objects and arrays."
+        }
+      },
+      "not": {
+        "anyOf": [
+          {"required": ["relationships"]},
+          {"required": ["id"]},
+          {"required": ["type"]}
+        ]
+      },
+      "additionalProperties": false
+    },
+    "relationships": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-zA-Z0-9](?:[-\\w]*[a-zA-Z0-9])?$": {
+          "required": [
+            "data"
+          ],
+          "properties": {
+            "data": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/relationships-to-one"
+                },
+                {
+                  "$ref": "#/$defs/relationships-to-many"
+                }
+              ]
+            }
+          },
+          "not": {
+            "anyOf": [
+              {"required": ["id"]},
+              {"required": ["type"]}
+            ]
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "relationships-to-one": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/resource-linkage"
+        },
+        {
+          "$ref": "#/$defs/nullable-type"
+        }
+      ]
+    },
+    "relationships-to-many": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/resource-linkage"
+      },
+      "uniqueItems": true
+    },
+    "resource-linkage": {
+      "type": "object",
+      "required": [
+        "type",
+        "id"
+      ],
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "nullable-type": {
+      "type": "null"
+    }
+  }
+}

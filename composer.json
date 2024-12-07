@@ -1,0 +1,37 @@
+{
+    "name": "gilsegura/json-api-server",
+    "description": "This is a project providing infrastructure for creating PSR HTTP server JSON:API schema.",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "require": {
+        "php": ">=8.3",
+        "gilsegura/assert": "dev-main",
+        "gilsegura/psr-server": "dev-main",
+        "gilsegura/psr-validator": "dev-main",
+        "gilsegura/serializer": "dev-main"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3",
+        "nyholm/psr7": "^1.8",
+        "phpstan/phpstan": "^1",
+        "phpunit/phpunit": "^11",
+        "rector/rector": "^1"
+    },
+    "autoload": {
+        "psr-4": {
+            "JsonApi\\Server\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "JsonApi\\Server\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true,
+        "allow-plugins": true
+    }
+}

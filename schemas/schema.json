@@ -1,0 +1,437 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "[document](https://jsonapi.org/format/#document-structure)",
+  "type": "object",
+  "properties": {
+    "data": {
+      "$ref": "#/$defs/data"
+    },
+    "errors": {
+      "$ref": "#/$defs/errors"
+    },
+    "meta": {
+      "$ref": "#/$defs/meta"
+    },
+    "jsonapi": {
+      "$ref": "#/$defs/jsonapi"
+    },
+    "links": {
+      "$ref": "#/$defs/links"
+    },
+    "included": {
+      "$ref": "#/$defs/included"
+    }
+  },
+  "allOf": [
+    {
+      "anyOf": [
+        {"required": ["data"]},
+        {"required": ["errors"]},
+        {"required": ["meta"]}
+      ]
+    },
+    {
+      "$ref": "#/$defs/must-not-coexist-top-level"
+    },
+    {
+      "$ref": "#/$defs/must-pagination-collection"
+    }
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "must-not-coexist-top-level": {
+      "description": "The members data and errors MUST NOT coexist in the same document.",
+      "allOf": [
+        {
+          "if": {
+            "required": ["data"]
+          },
+          "then": {
+            "not": {"required": ["errors"]}
+          }
+        },
+        {
+          "if": {
+            "required": ["errors"]
+          },
+          "then": {
+            "not": {"required": ["included"]}
+          }
+        }
+      ]
+    },
+    "must-pagination-collection": {
+      "description": "Pagination links MUST appear in the links object that corresponds to a collection. To paginate the primary data, supply pagination links in the top-level links object.",
+      "if": {
+        "not": {
+          "properties": {
+            "data": {
+              "type": "array"
+            }
+          }
+        },
+        "required": ["data"]
+      },
+      "then": {
+        "properties": {
+          "links": {
+            "allOf": [
+              {"not": {"required": ["first"]}},
+              {"not": {"required": ["last"]}},
+              {"not": {"required": ["prev"]}},
+              {"not": {"required": ["next"]}}
+            ]
+          }
+        }
+      }
+    },
+    "data": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/resource"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/resource"
+          },
+          "uniqueItems": true
+        },
+        {
+          "$ref": "#/$defs/nullable-type"
+        }
+      ]
+    },
+    "errors": {
+      "description": "An array of [error](https://jsonapi.org/format/#error-objects).",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/error"
+      },
+      "uniqueItems": true
+    },
+    "meta": {
+      "description": "[meta](https://jsonapi.org/format/#document-meta)",
+      "type": "object",
+      "additionalProperties": true
+    },
+    "jsonapi": {
+      "description": "[jsonapi](https://jsonapi.org/format/#document-jsonapi-object)",
+      "type": "object",
+      "required": [
+        "version"
+      ],
+      "properties": {
+        "version": {
+          "type": "string"
+        },
+        "ext": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri-reference"
+          },
+          "uniqueItems": true
+        },
+        "profile": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri-reference"
+          },
+          "uniqueItems": true
+        },
+        "meta": {
+          "$ref": "#/$defs/meta"
+        }
+      },
+      "additionalProperties": false
+    },
+    "links": {
+      "description": "[links](https://jsonapi.org/format/#document-links)",
+      "type": "object",
+      "properties": {
+        "self": {
+          "$ref": "#/$defs/link-type"
+        },
+        "related": {
+          "$ref": "#/$defs/link-type"
+        },
+        "describedby": {
+          "$ref": "#/$defs/link-type"
+        },
+        "first": {
+          "$ref": "#/$defs/link-type"
+        },
+        "last": {
+          "$ref": "#/$defs/link-type"
+        },
+        "prev": {
+          "$ref": "#/$defs/link-type"
+        },
+        "next": {
+          "$ref": "#/$defs/link-type"
+        }
+      },
+      "additionalProperties": false
+    },
+    "included": {
+      "description": "[included](https://jsonapi.org/format/#document-compound-documents)",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/resource"
+      },
+      "uniqueItems": true
+    },
+
+    "error": {
+      "description": "[error](https://jsonapi.org/format/#error-objects)",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "links": {
+          "type": "object",
+          "properties": {
+            "about": {
+              "$ref": "#/$defs/link-type"
+            },
+            "type": {
+              "$ref": "#/$defs/link-type"
+            }
+          },
+          "oneOf": [
+            {"required": ["about"]},
+            {"required": ["type"]}
+          ],
+          "additionalProperties": false
+        },
+        "status": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "detail": {
+          "type": "string"
+        },
+        "source": {
+          "type": "object",
+          "properties": {
+            "pointer": {
+              "type": "string",
+              "format": "json-pointer"
+            },
+            "parameter": {
+              "type": "string"
+            },
+            "header": {
+              "type": "string"
+            }
+          },
+          "oneOf": [
+            {"required": ["pointer"]},
+            {"required": ["parameter"]},
+            {"required": ["header"]}
+          ],
+          "additionalProperties": false
+        },
+        "meta": {
+          "$ref": "#/$defs/meta"
+        }
+      },
+      "anyOf": [
+        {"required": ["id"]},
+        {"required": ["links"]},
+        {"required": ["status"]},
+        {"required": ["code"]},
+        {"required": ["title"]},
+        {"required": ["detail"]},
+        {"required": ["source"]},
+        {"required": ["meta"]}
+      ],
+      "additionalProperties": false
+    },
+
+    "resource": {
+      "description": "[resource](https://jsonapi.org/format/#document-resource-objects)",
+      "type": "object",
+      "required": [
+        "type",
+        "id"
+      ],
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "meta": {
+          "$ref": "#/$defs/meta"
+        },
+        "attributes": {
+          "$ref": "#/$defs/attributes"
+        },
+        "relationships": {
+          "$ref": "#/$defs/relationships"
+        },
+        "links": {
+          "type": "object",
+          "properties": {
+            "self": {
+              "$ref": "#/$defs/link-type"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "attributes": {
+      "description": "[attributes](https://jsonapi.org/format/#document-resource-object-attributes)",
+      "type": "object",
+      "patternProperties": {
+        "^[a-zA-Z0-9](?:[-\\w]*[a-zA-Z0-9])?$": {
+          "description": "Attributes may contain any valid JSON value, including complex data structures involving JSON objects and arrays."
+        }
+      },
+      "not": {
+        "anyOf": [
+          {"required": ["relationships"]},
+          {"required": ["links"]},
+          {"required": ["id"]},
+          {"required": ["type"]}
+        ]
+      },
+      "additionalProperties": false
+    },
+    "relationships": {
+      "description": "[relationships](https://jsonapi.org/format/#document-resource-object-relationships)",
+      "type": "object",
+      "patternProperties": {
+        "^[a-zA-Z0-9](?:[-\\w]*[a-zA-Z0-9])?$": {
+          "properties": {
+            "links": {
+              "type": "object",
+              "properties": {
+                "self": {
+                  "$ref": "#/$defs/link-type"
+                },
+                "related": {
+                  "$ref": "#/$defs/link-type"
+                }
+              },
+              "additionalProperties": false
+            },
+            "data": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/relationships-to-one"
+                },
+                {
+                  "$ref": "#/$defs/relationships-to-many"
+                }
+              ]
+            },
+            "meta": {
+              "$ref": "#/$defs/meta"
+            }
+          },
+          "anyOf": [
+            {"required": ["data"]},
+            {"required": ["meta"]},
+            {"required": ["links"]}
+          ],
+          "not": {
+            "anyOf": [
+              {"required": ["id"]},
+              {"required": ["type"]}
+            ]
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "relationships-to-one": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/resource-linkage"
+        },
+        {
+          "$ref": "#/$defs/nullable-type"
+        }
+      ]
+    },
+    "relationships-to-many": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/resource-linkage"
+      },
+      "uniqueItems": true
+    },
+    "resource-linkage": {
+      "description": "[related](https://jsonapi.org/format/#document-resource-object-linkage)",
+      "type": "object",
+      "required": [
+        "type",
+        "id"
+      ],
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "link-type": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "uri-reference"
+        },
+        {
+          "type": "object",
+          "required": [
+            "href"
+          ],
+          "properties": {
+            "href": {
+              "type": "string",
+              "format": "uri-reference"
+            },
+            "describedby": {
+              "type": "string",
+              "format": "uri-reference"
+            },
+            "title": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "meta": {
+              "$ref": "#/$defs/meta"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "$ref": "#/$defs/nullable-type"
+        }
+      ]
+    },
+    "nullable-type": {
+      "type": "null"
+    }
+  }
+}
